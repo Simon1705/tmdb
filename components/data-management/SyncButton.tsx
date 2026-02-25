@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { RefreshCw, Clock, CheckCircle2, TrendingUp, Plus, RotateCw, X } from 'lucide-react';
-import { formatDistanceToNow, format } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
+import { format } from 'date-fns/format';
 
 interface SyncButtonProps {
   onSyncComplete?: () => void;

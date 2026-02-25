@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+// Enable caching for this route
+export const revalidate = 60; // Revalidate every 60 seconds
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -128,7 +131,7 @@ export async function GET(request: NextRequest) {
       ? genreData.reduce((sum, movie) => sum + (movie.vote_average || 0), 0) / totalMovies 
       : 0;
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       genreDistribution,
       moviesPerDate,
       ratingDistribution: ratingDistributionWithMetrics,
@@ -141,6 +144,11 @@ export async function GET(request: NextRequest) {
         averageRating,
       },
     });
+
+    // Add cache headers
+    response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+
+    return response;
   } catch (error) {
     console.error('Error fetching analytics:', error);
     return NextResponse.json(

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { subMonths, format } from 'date-fns';
+import { subMonths } from 'date-fns/subMonths';
+import { format } from 'date-fns/format';
 import { DateMode, QuickPreset, AppliedFilters } from '../lib/types';
 
 export const useDateFilter = () => {

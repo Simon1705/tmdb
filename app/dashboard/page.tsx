@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import {
   // Hooks
@@ -9,6 +10,7 @@ import {
   useMovieModal,
   usePersonModal,
   useInfiniteScroll,
+  useCollapsible,
   
   // Components
   DateFilter,
@@ -17,14 +19,8 @@ import {
   LoadingState,
   EmptyState,
   MovieGrid,
-  MovieModal,
-  PersonModal,
-  
-  // Charts
-  GenreDistributionChart,
-  MoviesPerDateChart,
-  RatingDistributionChart,
-  GenrePerformanceChart,
+  LazyChart,
+  CollapsibleSection,
   
   // Utils
   processGenreData,
@@ -35,6 +31,60 @@ import {
   // Types
   SortBy,
 } from '@/components/dashboard';
+
+// Dynamic imports for heavy chart components (code splitting)
+const GenreDistributionChart = dynamic(
+  () => import('@/components/dashboard/charts').then(mod => ({ default: mod.GenreDistributionChart })),
+  { 
+    loading: () => <ChartLoadingSkeleton />,
+    ssr: false, // Charts don't need SSR
+  }
+);
+
+const MoviesPerDateChart = dynamic(
+  () => import('@/components/dashboard/charts').then(mod => ({ default: mod.MoviesPerDateChart })),
+  { 
+    loading: () => <ChartLoadingSkeleton />,
+    ssr: false,
+  }
+);
+
+const RatingDistributionChart = dynamic(
+  () => import('@/components/dashboard/charts').then(mod => ({ default: mod.RatingDistributionChart })),
+  { 
+    loading: () => <ChartLoadingSkeleton />,
+    ssr: false,
+  }
+);
+
+const GenrePerformanceChart = dynamic(
+  () => import('@/components/dashboard/charts').then(mod => ({ default: mod.GenrePerformanceChart })),
+  { 
+    loading: () => <ChartLoadingSkeleton />,
+    ssr: false,
+  }
+);
+
+// Dynamic import for modals (loaded on demand)
+const DynamicMovieModal = dynamic(
+  () => import('@/components/dashboard').then(mod => ({ default: mod.MovieModal })),
+  { ssr: false }
+);
+
+const DynamicPersonModal = dynamic(
+  () => import('@/components/dashboard').then(mod => ({ default: mod.PersonModal })),
+  { ssr: false }
+);
+
+// Chart loading skeleton component
+const ChartLoadingSkeleton = () => (
+  <div className="bg-slate-800/40 border border-white/15 rounded-2xl p-6 shadow-xl">
+    <div className="animate-pulse">
+      <div className="h-6 bg-white/10 rounded w-1/3 mb-4"></div>
+      <div className="h-64 bg-white/5 rounded"></div>
+    </div>
+  </div>
+);
 
 export default function Dashboard() {
   // Date filter hook
@@ -83,14 +133,20 @@ export default function Dashboard() {
   // Sort state
   const [sortBy, setSortBy] = useState<SortBy>('rating');
 
-  // Infinite scroll hook
+  // Collapsible state for movie section
+  const { isExpanded, toggle } = useCollapsible({
+    storageKey: 'dashboard-movies-expanded',
+    defaultExpanded: false,
+  });
+
+  // Infinite scroll hook - pass appliedFilters to trigger reset on filter change
   const {
     sortedMovies,
     displayedMovies,
     isLoadingMore,
     loadedImages,
     handleImageLoad,
-  } = useInfiniteScroll(analytics?.movies, sortBy);
+  } = useInfiniteScroll(analytics?.movies, sortBy, appliedFilters);
 
   // Process data for charts
   const genreData = processGenreData(analytics);
@@ -151,43 +207,60 @@ export default function Dashboard() {
         ) : (
           <>
             <div className="grid md:grid-cols-2 gap-8">
-              <GenreDistributionChart
-                data={genreData.pieChartData}
-                totalMovies={genreData.totalMovies}
-                otherGenresCount={genreData.otherGenres.length}
-              />
+              <LazyChart>
+                <GenreDistributionChart
+                  data={genreData.pieChartData}
+                  totalMovies={genreData.totalMovies}
+                  otherGenresCount={genreData.otherGenres.length}
+                />
+              </LazyChart>
               
-              <MoviesPerDateChart
-                data={dateChartData}
-                dateMode={dateMode}
-              />
+              <LazyChart>
+                <MoviesPerDateChart
+                  data={dateChartData}
+                  dateMode={dateMode}
+                />
+              </LazyChart>
               
-              <RatingDistributionChart
-                data={ratingData}
-                movies={analytics?.movies || []}
-              />
+              <LazyChart>
+                <RatingDistributionChart
+                  data={ratingData}
+                  movies={analytics?.movies || []}
+                />
+              </LazyChart>
               
-              <GenrePerformanceChart
-                data={genrePerformanceData}
-              />
+              <LazyChart>
+                <GenrePerformanceChart
+                  data={genrePerformanceData}
+                />
+              </LazyChart>
             </div>
 
-            {/* Movie Grid */}
-            <MovieGrid
-              movies={sortedMovies}
-              sortBy={sortBy}
-              displayedMovies={displayedMovies}
-              isLoadingMore={isLoadingMore}
-              loadedImages={loadedImages}
-              onSortChange={setSortBy}
-              onImageLoad={handleImageLoad}
-              onMovieClick={openMovieModal}
-            />
+            {/* Movie Grid - Collapsible */}
+            <CollapsibleSection
+              title="Movies in Selected Period"
+              count={sortedMovies.length}
+              isExpanded={isExpanded}
+              onToggle={toggle}
+            >
+              {isExpanded && (
+                <MovieGrid
+                  movies={sortedMovies}
+                  sortBy={sortBy}
+                  displayedMovies={displayedMovies}
+                  isLoadingMore={isLoadingMore}
+                  loadedImages={loadedImages}
+                  onSortChange={setSortBy}
+                  onImageLoad={handleImageLoad}
+                  onMovieClick={openMovieModal}
+                />
+              )}
+            </CollapsibleSection>
           </>
         )}
 
         {/* Movie Modal */}
-        <MovieModal
+        <DynamicMovieModal
           movie={selectedMovie}
           movieDetails={movieDetails}
           isOpen={isModalOpen}
@@ -200,7 +273,7 @@ export default function Dashboard() {
         />
 
         {/* Person Modal */}
-        <PersonModal
+        <DynamicPersonModal
           person={selectedPerson}
           personDetails={personDetails}
           isOpen={isPersonModalOpen}

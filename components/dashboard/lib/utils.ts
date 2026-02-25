@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format } from 'date-fns/format';
 import { Analytics } from './types';
 
 // Process genre distribution data for pie chart

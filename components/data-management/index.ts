@@ -12,4 +12,5 @@ export { EmptyState } from './EmptyState';
 export { TmdbResults } from './TmdbResults';
 export { MovieFormModal } from './MovieFormModal';
 export { DeleteConfirmModal } from './DeleteConfirmModal';
+export { PosterZoomModal } from './PosterZoomModal';
 export { default as SyncButton } from './SyncButton';

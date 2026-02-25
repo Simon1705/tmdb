@@ -6,3 +6,4 @@ export { useMovies } from './useMovies';
 export { useTmdbSearch } from './useTmdbSearch';
 export { useMovieActions } from './useMovieActions';
 export { useGenres } from './useGenres';
+export { usePosterZoom } from './usePosterZoom';

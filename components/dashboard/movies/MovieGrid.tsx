@@ -28,18 +28,14 @@ export const MovieGrid = ({
   const displayedMoviesList = movies.slice(0, displayedMovies);
 
   return (
-    <div className="mt-8">
-      {/* Header with sort */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-white">Movies in Selected Period</h2>
-          <p className="text-sm text-indigo-100/80 mt-1">
-            Showing {Math.min(displayedMovies, movies.length)} of {movies.length}{' '}
-            {movies.length === 1 ? 'movie' : 'movies'}
-          </p>
-        </div>
+    <div>
+      {/* Sort dropdown */}
+      <div className="flex items-center justify-between mb-6">
+        <p className="text-sm text-indigo-100/80">
+          Showing {Math.min(displayedMovies, movies.length)} of {movies.length}{' '}
+          {movies.length === 1 ? 'movie' : 'movies'}
+        </p>
         
-        {/* Sort dropdown */}
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium text-indigo-100">Sort by:</label>
           <select

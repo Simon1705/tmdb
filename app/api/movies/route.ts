@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+// Enable caching for this route
+export const revalidate = 60; // Revalidate every 60 seconds
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -54,7 +57,7 @@ export async function GET(request: NextRequest) {
 
     console.log('Filtered movies count:', count);
 
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       movies: data,
       pagination: {
         page,
@@ -63,6 +66,11 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil((count || 0) / limit)
       }
     });
+
+    // Add cache headers
+    response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+
+    return response;
   } catch (error) {
     console.error('Error fetching movies:', error);
     return NextResponse.json(

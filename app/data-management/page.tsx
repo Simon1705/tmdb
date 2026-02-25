@@ -13,6 +13,7 @@ import {
   useTmdbSearch,
   useMovieActions,
   useGenres,
+  usePosterZoom,
   // Components
   Toast,
   SearchBar,
@@ -31,6 +32,7 @@ import {
   DEFAULT_SORT_BY,
   DEFAULT_SORT_ORDER,
 } from '@/components/data-management';
+import { PosterZoomModal } from '@/components/data-management/PosterZoomModal';
 
 export default function DataManagement() {
   // State
@@ -49,6 +51,7 @@ export default function DataManagement() {
   // Custom hooks
   const { toast, showToast, hideToast } = useToast();
   const { allGenres, refetch: refetchGenres } = useGenres();
+  const { isOpen: isPosterZoomOpen, posterData, openPosterZoom, closePosterZoom } = usePosterZoom();
   
   const { movies, pagination, loading, refetch: refetchMovies } = useMovies({
     search: debouncedSearch,
@@ -326,6 +329,7 @@ export default function DataManagement() {
               onSort={handleSort}
               onEdit={handleEditMovie}
               onDelete={handleDeleteClick}
+              onPosterClick={openPosterZoom}
             />
           )}
         </div>
@@ -381,6 +385,14 @@ export default function DataManagement() {
 
       {/* Toast Notification */}
       <Toast toast={toast} onClose={hideToast} />
+
+      {/* Poster Zoom Modal */}
+      <PosterZoomModal
+        isOpen={isPosterZoomOpen}
+        onClose={closePosterZoom}
+        posterUrl={posterData.posterUrl}
+        title={posterData.title}
+      />
     </div>
   );
 }

@@ -1,30 +1,26 @@
-import { useState, useEffect } from 'react';
+import useSWR from 'swr';
+import { fetcher } from '@/lib/fetcher';
+
+interface GenresResponse {
+  genres: string[];
+}
 
 export const useGenres = () => {
-  const [allGenres, setAllGenres] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchGenres = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/movies/genres');
-      const data = await response.json();
-      setAllGenres(data.genres || []);
-    } catch (error) {
-      console.error('Error fetching genres:', error);
-      setAllGenres([]);
-    } finally {
-      setLoading(false);
+  const { data, error, isLoading, mutate } = useSWR<GenresResponse>(
+    '/api/movies/genres',
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 300000, // 5 minutes - genres rarely change
+      revalidateIfStale: false, // Don't revalidate unless manually triggered
     }
-  };
-
-  useEffect(() => {
-    fetchGenres();
-  }, []);
+  );
 
   return {
-    allGenres,
-    loading,
-    refetch: fetchGenres,
+    allGenres: data?.genres || [],
+    loading: isLoading,
+    error,
+    refetch: mutate,
   };
 };

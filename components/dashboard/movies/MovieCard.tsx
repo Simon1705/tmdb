@@ -1,5 +1,8 @@
 import { Film, Star } from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
 import { Movie } from '../lib/types';
+import { posterBlurDataURL } from '@/lib/image-utils';
 
 interface MovieCardProps {
   movie: Movie;
@@ -9,6 +12,8 @@ interface MovieCardProps {
 }
 
 export const MovieCard = ({ movie, isImageLoaded, onImageLoad, onClick }: MovieCardProps) => {
+  const [imageError, setImageError] = useState(false);
+  
   return (
     <div
       onClick={() => onClick(movie)}
@@ -16,7 +21,7 @@ export const MovieCard = ({ movie, isImageLoaded, onImageLoad, onClick }: MovieC
     >
       <div className="relative aspect-[2/3] bg-gray-200">
         {/* Skeleton loader */}
-        {!isImageLoaded && movie.poster_path && (
+        {!isImageLoaded && movie.poster_path && !imageError && (
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/20 to-white/10 animate-pulse">
             <div className="absolute inset-0 flex items-center justify-center">
               <Film className="w-12 h-12 text-indigo-200 animate-pulse" />
@@ -24,19 +29,30 @@ export const MovieCard = ({ movie, isImageLoaded, onImageLoad, onClick }: MovieC
           </div>
         )}
         
-        {movie.poster_path ? (
-          <img
+        {movie.poster_path && !imageError ? (
+          <Image
             src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
             alt={movie.title}
+            fill
             loading="lazy"
+            placeholder="blur"
+            blurDataURL={posterBlurDataURL}
             onLoad={() => onImageLoad(movie.id)}
-            className={`w-full h-full object-cover transition-opacity duration-300 ${
+            onError={() => {
+              setImageError(true);
+              onImageLoad(movie.id);
+            }}
+            className={`object-cover transition-opacity duration-300 ${
               isImageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-300 to-gray-400">
-            <Film className="w-12 h-12 text-gray-500" />
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-800">
+            <div className="text-center px-4">
+              <Film className="w-12 h-12 text-slate-400 mx-auto mb-2" />
+              <p className="text-xs text-slate-400">No poster</p>
+            </div>
           </div>
         )}
         

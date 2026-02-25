@@ -1,5 +1,6 @@
 import { Calendar } from 'lucide-react';
-import { format, subMonths } from 'date-fns';
+import { format } from 'date-fns/format';
+import { subMonths } from 'date-fns/subMonths';
 import { DateMode } from './lib/types';
 
 interface DateFilterProps {

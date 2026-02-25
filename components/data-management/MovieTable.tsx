@@ -1,7 +1,9 @@
 import { Edit, Trash2, ArrowUpDown, Film } from 'lucide-react';
-import { format } from 'date-fns';
+import { format } from 'date-fns/format';
 import Image from 'next/image';
+import { useState } from 'react';
 import { getPosterUrl } from '@/lib/tmdb';
+import { posterBlurDataURL } from '@/lib/image-utils';
 import { Movie, SortBy, SortOrder } from './lib';
 
 interface MovieTableProps {
@@ -11,6 +13,7 @@ interface MovieTableProps {
   onSort: (column: SortBy) => void;
   onEdit: (movie: Movie) => void;
   onDelete: (movie: Movie) => void;
+  onPosterClick: (posterUrl: string, title: string) => void;
 }
 
 export const MovieTable = ({
@@ -20,6 +23,7 @@ export const MovieTable = ({
   onSort,
   onEdit,
   onDelete,
+  onPosterClick,
 }: MovieTableProps) => {
   const SortButton = ({ column, label }: { column: SortBy; label: string }) => (
     <button
@@ -30,6 +34,43 @@ export const MovieTable = ({
       <ArrowUpDown className="w-4 h-4 opacity-60 group-hover:opacity-100" />
     </button>
   );
+
+  const MoviePosterCell = ({ movie }: { movie: Movie }) => {
+    const [imageError, setImageError] = useState(false);
+    
+    return (
+      <div 
+        className="relative w-16 h-24 rounded-lg overflow-hidden shadow-md bg-white/10 group-hover:shadow-lg transition-all duration-200 cursor-pointer hover:ring-2 hover:ring-indigo-400"
+        onClick={() => movie.poster_path && !imageError && onPosterClick(getPosterUrl(movie.poster_path, 'w500'), movie.title)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if ((e.key === 'Enter' || e.key === ' ') && movie.poster_path && !imageError) {
+            e.preventDefault();
+            onPosterClick(getPosterUrl(movie.poster_path, 'w500'), movie.title);
+          }
+        }}
+        aria-label={`View ${movie.title} poster`}
+      >
+        {movie.poster_path && !imageError ? (
+          <Image
+            src={getPosterUrl(movie.poster_path, 'w185')}
+            alt={movie.title}
+            fill
+            placeholder="blur"
+            blurDataURL={posterBlurDataURL}
+            onError={() => setImageError(true)}
+            className="object-cover group-hover:scale-105 transition-transform duration-200"
+            sizes="64px"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-800">
+            <Film className="w-6 h-6 text-slate-400" />
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="overflow-x-auto">
@@ -61,21 +102,7 @@ export const MovieTable = ({
           {movies.map((movie) => (
             <tr key={movie.id} className="hover:bg-white/5 transition-all duration-200 group">
               <td className="px-6 py-4">
-                <div className="relative w-16 h-24 rounded-lg overflow-hidden shadow-md bg-white/10 group-hover:shadow-lg transition-shadow duration-200">
-                  {movie.poster_path ? (
-                    <Image
-                      src={getPosterUrl(movie.poster_path, 'w185')}
-                      alt={movie.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-200"
-                      sizes="64px"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-white/10 to-white/20">
-                      <Film className="w-8 h-8 text-indigo-200" />
-                    </div>
-                  )}
-                </div>
+                <MoviePosterCell movie={movie} />
               </td>
               <td className="px-6 py-4">
                 <div className="font-medium text-white group-hover:text-indigo-200 transition-colors">{movie.title}</div>

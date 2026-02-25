@@ -1,5 +1,5 @@
 import { X, Star, Calendar, Globe, Film, TrendingUp } from 'lucide-react';
-import { format } from 'date-fns';
+import { format } from 'date-fns/format';
 import { Movie, MovieDetails } from '../lib/types';
 
 interface MovieModalProps {

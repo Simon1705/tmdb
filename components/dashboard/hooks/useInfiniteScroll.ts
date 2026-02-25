@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Movie, SortBy } from '../lib/types';
+import { Movie, SortBy, AppliedFilters } from '../lib/types';
 import { INITIAL_DISPLAYED_MOVIES, LOAD_MORE_MOVIES_COUNT, SCROLL_THRESHOLD, LOAD_MORE_DELAY } from '../lib/constants';
 
-export const useInfiniteScroll = (movies: Movie[] | undefined, sortBy: SortBy) => {
+export const useInfiniteScroll = (
+  movies: Movie[] | undefined, 
+  sortBy: SortBy,
+  appliedFilters?: AppliedFilters
+) => {
   const [displayedMovies, setDisplayedMovies] = useState(INITIAL_DISPLAYED_MOVIES);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
 
-  // Reset when movies or sort changes
+  // Reset when movies, sort, or filters change
   useEffect(() => {
     setDisplayedMovies(INITIAL_DISPLAYED_MOVIES);
     setLoadedImages(new Set());
-  }, [movies, sortBy]);
+  }, [movies, sortBy, appliedFilters?.startDate, appliedFilters?.endDate, appliedFilters?.dateMode]);
 
   const getSortedMovies = () => {
     if (!movies) return [];
