@@ -13,9 +13,8 @@ import {
   useCollapsible,
   
   // Components
-  DateFilter,
+  CompactFilterBar,
   SummaryCards,
-  ActiveFilterInfo,
   LoadingState,
   EmptyState,
   MovieGrid,
@@ -173,8 +172,8 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        {/* Date Filter */}
-        <DateFilter
+        {/* Compact Filter Bar */}
+        <CompactFilterBar
           startDate={startDate}
           endDate={endDate}
           dateMode={dateMode}
@@ -187,13 +186,6 @@ export default function Dashboard() {
           onApplyFilter={applyFilters}
           onResetToLastMonth={resetFilters}
           onQuickSelect={handleQuickSelect}
-        />
-
-        {/* Active Filter Info */}
-        <ActiveFilterInfo
-          startDate={appliedFilters.startDate}
-          endDate={appliedFilters.endDate}
-          dateMode={appliedFilters.dateMode}
         />
 
         {/* Summary Cards */}

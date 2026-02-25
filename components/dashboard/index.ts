@@ -20,6 +20,7 @@ export { LoadingState } from './LoadingState';
 export { EmptyState } from './EmptyState';
 export { LazyChart } from './LazyChart';
 export { CollapsibleSection } from './CollapsibleSection';
+export { CompactFilterBar } from './CompactFilterBar';
 
 // Chart Components
 export * from './charts';
