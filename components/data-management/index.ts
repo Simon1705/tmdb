@@ -14,3 +14,4 @@ export { MovieFormModal } from './MovieFormModal';
 export { DeleteConfirmModal } from './DeleteConfirmModal';
 export { PosterZoomModal } from './PosterZoomModal';
 export { default as SyncButton } from './SyncButton';
+export { default as DeleteAllButton } from './DeleteAllButton';

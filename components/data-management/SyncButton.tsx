@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { RefreshCw, Clock, CheckCircle2, TrendingUp, Plus, RotateCw, X } from 'lucide-react';
+import { RefreshCw, Clock, CheckCircle2, X, Settings } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import { format } from 'date-fns/format';
 
@@ -19,6 +19,9 @@ export default function SyncButton({ onSyncComplete }: SyncButtonProps) {
   const [shouldRenderModal, setShouldRenderModal] = useState(false);
   const [isModalAnimating, setIsModalAnimating] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [pagesPerCategory, setPagesPerCategory] = useState(3);
+  const [showSettings, setShowSettings] = useState(false);
+  const [isSettingsAnimating, setIsSettingsAnimating] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -75,8 +78,13 @@ export default function SyncButton({ onSyncComplete }: SyncButtonProps) {
 
   const handleSync = async () => {
     setSyncing(true);
+    handleCloseSettings(); // Close settings when syncing
     try {
-      const response = await fetch('/api/sync', { method: 'POST' });
+      const response = await fetch('/api/sync', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pages: pagesPerCategory })
+      });
       const data = await response.json();
       
       if (data.success) {
@@ -98,18 +106,183 @@ export default function SyncButton({ onSyncComplete }: SyncButtonProps) {
   const fetched = syncResult?.recordsFetched ?? 0;
   const created = syncResult?.recordsCreated ?? 0;
   const updated = syncResult?.recordsUpdated ?? 0;
+  const estimatedMovies = pagesPerCategory * 80; // 4 categories × pages × 20 movies
+
+  const handleOpenSettings = () => {
+    setShowSettings(true);
+    setTimeout(() => setIsSettingsAnimating(true), 10);
+  };
+
+  const handleCloseSettings = () => {
+    setIsSettingsAnimating(false);
+    setTimeout(() => setShowSettings(false), 200);
+  };
+
+  const handleToggleSettings = () => {
+    if (showSettings) {
+      handleCloseSettings();
+    } else {
+      handleOpenSettings();
+    }
+  };
 
   return (
     <>
       <div className="flex items-center gap-3">
-        <button
-          onClick={handleSync}
-          disabled={syncing}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 hover:bg-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold hover:-translate-y-0.5"
-        >
-          <RefreshCw className={`w-5 h-5 ${syncing ? 'animate-spin' : ''}`} />
-          {syncing ? 'Syncing...' : 'Sync Data'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleSync}
+            disabled={syncing}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 hover:bg-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold hover:-translate-y-0.5 cursor-pointer"
+          >
+            <RefreshCw className={`w-5 h-5 ${syncing ? 'animate-spin' : ''}`} />
+            {syncing ? 'Syncing...' : 'Sync Data'}
+          </button>
+
+          {/* Settings Dropdown */}
+          <div className="relative">
+            <button
+              onClick={handleToggleSettings}
+              className={`p-2.5 rounded-full border transition-all cursor-pointer ${
+                showSettings
+                  ? 'bg-indigo-500 border-indigo-400 text-white shadow-lg shadow-indigo-500/30'
+                  : 'bg-white/5 border-white/15 text-indigo-200 hover:bg-white/10 hover:border-white/25'
+              }`}
+              title="Sync settings"
+            >
+              <Settings className={`w-5 h-5 transition-transform duration-300 ${showSettings ? 'rotate-90' : ''}`} />
+            </button>
+            
+            {showSettings && (
+              <>
+                {/* Dropdown */}
+                <div className={`absolute right-0 top-full mt-3 w-80 bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-white/20 rounded-2xl shadow-2xl overflow-hidden z-50 transition-all duration-200 origin-top-right ${
+                  isSettingsAnimating 
+                    ? 'opacity-100 scale-100 translate-y-0' 
+                    : 'opacity-0 scale-95 -translate-y-2'
+                }`}>
+                  {/* Header */}
+                  <div className="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-b border-white/10 px-5 py-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base font-bold text-white flex items-center gap-2">
+                        <Settings className="w-4 h-4" />
+                        Sync Settings
+                      </h3>
+                      <button
+                        onClick={handleCloseSettings}
+                        className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                      >
+                        <X className="w-4 h-4 text-white/70 hover:text-white" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-5 space-y-4">
+                    {/* Pages Input */}
+                    <div>
+                      <label className="block text-sm font-semibold text-white mb-3">
+                        Pages per Category
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 relative">
+                          <input
+                            type="number"
+                            min="1"
+                            max="10"
+                            value={pagesPerCategory}
+                            onChange={(e) => setPagesPerCategory(Math.max(1, Math.min(10, parseInt(e.target.value) || 1)))}
+                            className="w-full px-4 py-3 bg-slate-950/50 border-2 border-white/20 rounded-xl text-white text-center text-xl font-bold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-400 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          />
+                          <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                            <span className="text-xs text-white/40 font-medium">pages</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <button
+                            onClick={() => setPagesPerCategory(Math.min(10, pagesPerCategory + 1))}
+                            className="p-2 bg-indigo-500/20 hover:bg-indigo-500/30 rounded-lg border border-indigo-500/30 hover:border-indigo-500/50 transition-all group"
+                          >
+                            <svg className="w-4 h-4 text-indigo-300 group-hover:text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => setPagesPerCategory(Math.max(1, pagesPerCategory - 1))}
+                            className="p-2 bg-indigo-500/20 hover:bg-indigo-500/30 rounded-lg border border-indigo-500/30 hover:border-indigo-500/50 transition-all group"
+                          >
+                            <svg className="w-4 h-4 text-indigo-300 group-hover:text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* Range Slider */}
+                      <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={pagesPerCategory}
+                        onChange={(e) => setPagesPerCategory(parseInt(e.target.value))}
+                        className="w-full mt-3 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                      />
+                      <div className="flex justify-between text-xs text-white/40 mt-1 px-1">
+                        <span>1</span>
+                        <span>5</span>
+                        <span>10</span>
+                      </div>
+                    </div>
+                    
+                    {/* Info Box */}
+                    <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/30 rounded-xl p-4">
+                      <div className="text-sm text-indigo-100 space-y-2">
+                        <p className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse"></span>
+                          <span className="text-white/90">4 categories</span>
+                          <span className="text-white/50 text-xs">(Popular, Top Rated, etc.)</span>
+                        </p>
+                        <p className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></span>
+                          <span className="text-white/90">~20 movies per page</span>
+                        </p>
+                        <div className="pt-3 mt-3 border-t border-indigo-500/30">
+                          <div className="flex items-baseline justify-between">
+                            <span className="text-white/70 text-xs font-medium">Estimated total:</span>
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-2xl font-bold text-white">{estimatedMovies}</span>
+                              <span className="text-sm text-white/60">movies</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quick Presets */}
+                    <div>
+                      <label className="block text-xs font-semibold text-white/70 mb-2">Quick Presets</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[1, 3, 5].map((preset) => (
+                          <button
+                            key={preset}
+                            onClick={() => setPagesPerCategory(preset)}
+                            className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
+                              pagesPerCategory === preset
+                                ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
+                                : 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10'
+                            }`}
+                          >
+                            {preset}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
         
         {lastSync && !syncing && (
           <div className="hidden lg:flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/15 rounded-full shadow-sm backdrop-blur">

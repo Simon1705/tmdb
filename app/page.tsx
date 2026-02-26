@@ -1,10 +1,14 @@
+'use client';
+
 import Image from 'next/image';
-import Link from 'next/link';
 import { BarChart3, Database, Sparkles, ArrowRight, Play } from 'lucide-react';
+import PageTransition from '@/components/PageTransition';
+import TransitionLink from '@/components/TransitionLink';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white">
+    <PageTransition>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-24 top-10 h-64 w-64 rounded-full bg-indigo-500/20 blur-3xl" />
         <div className="absolute right-0 top-40 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
@@ -23,22 +27,22 @@ export default function Home() {
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                <Link
+                <TransitionLink
                   href="/dashboard"
                   className="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-5 py-3 text-base font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5 hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-300"
                 >
                   <BarChart3 className="h-5 w-5" />
                   <span>Open Dashboard</span>
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </TransitionLink>
 
-                <Link
+                <TransitionLink
                   href="/data-management"
                   className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 text-base font-semibold text-white transition hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
                 >
                   <Database className="h-5 w-5" />
                   <span>Data Workspace</span>
-                </Link>
+                </TransitionLink>
 
                 <a
                   href="https://www.themoviedb.org/"
@@ -60,7 +64,7 @@ export default function Home() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <Link
+              <TransitionLink
                 href="/dashboard"
                 className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg backdrop-blur transition hover:-translate-y-1 hover:border-indigo-200/30 hover:bg-indigo-500/10"
               >
@@ -79,9 +83,9 @@ export default function Home() {
                     <ArrowRight className="h-4 w-4" />
                   </span>
                 </div>
-              </Link>
+              </TransitionLink>
 
-              <Link
+              <TransitionLink
                 href="/data-management"
                 className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg backdrop-blur transition hover:-translate-y-1 hover:border-emerald-200/30 hover:bg-emerald-500/10"
               >
@@ -100,11 +104,12 @@ export default function Home() {
                     <ArrowRight className="h-4 w-4" />
                   </span>
                 </div>
-              </Link>
+              </TransitionLink>
             </div>
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </PageTransition>
   );
 }

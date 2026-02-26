@@ -107,3 +107,25 @@ select.dark-select option:checked {
   background-color: #4f46e5;
   color: white;
 }
+
+/* Page transition styles */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition-enter {
+  animation: page-enter 0.5s ease-out;
+}
+
+/* Smooth link transitions */
+a {
+  transition: all 0.2s ease-out;
+}
+

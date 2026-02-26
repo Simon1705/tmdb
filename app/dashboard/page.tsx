@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
+import PageTransition from '@/components/PageTransition';
+import TransitionLink from '@/components/TransitionLink';
 import {
   // Hooks
   useAnalytics,
@@ -156,7 +157,8 @@ export default function Dashboard() {
   const hasData = genreData.totalMovies > 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white">
+    <PageTransition>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white">
       <div className="container mx-auto px-6 py-10 lg:py-12">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
@@ -164,12 +166,12 @@ export default function Dashboard() {
             <h1 className="text-3xl font-semibold tracking-tight">Analytics Dashboard</h1>
             <p className="text-indigo-100/80 text-sm">Movie data insights and visualizations</p>
           </div>
-          <Link
+          <TransitionLink
             href="/"
             className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40"
           >
             ← Back to Home
-          </Link>
+          </TransitionLink>
         </div>
 
         {/* Compact Filter Bar */}
@@ -277,6 +279,7 @@ export default function Dashboard() {
           }}
         />
       </div>
-    </div>
+      </div>
+    </PageTransition>
   );
 }

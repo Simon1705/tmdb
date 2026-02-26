@@ -8,8 +8,12 @@ import {
   getGenreName 
 } from '@/lib/tmdb';
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
+    // Get pages parameter from request body
+    const body = await request.json();
+    const PAGES_PER_CATEGORY = body.pages || 3; // Default 3 if not provided
+
     let recordsFetched = 0;
     let recordsCreated = 0;
     let recordsUpdated = 0;
@@ -30,8 +34,7 @@ export async function POST() {
     ];
 
     // Fetch multiple pages from each category
-    // 4 categories × 3 pages × 20 movies = ~240 movies per sync
-    const PAGES_PER_CATEGORY = 3;
+    // 4 categories × pages × 20 movies = ~(pages * 80) movies per sync
 
     for (const { fn, name } of fetchFunctions) {
       try {
