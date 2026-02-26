@@ -219,18 +219,23 @@ export default function SyncButton({ onSyncComplete }: SyncButtonProps) {
                       </div>
                       
                       {/* Range Slider */}
-                      <input
-                        type="range"
-                        min="1"
-                        max="10"
-                        value={pagesPerCategory}
-                        onChange={(e) => setPagesPerCategory(parseInt(e.target.value))}
-                        className="w-full mt-3 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-                      />
-                      <div className="flex justify-between text-xs text-white/40 mt-1 px-1">
-                        <span>1</span>
-                        <span>5</span>
-                        <span>10</span>
+                      <div className="mt-4">
+                        <input
+                          type="range"
+                          min="1"
+                          max="10"
+                          value={pagesPerCategory}
+                          onChange={(e) => setPagesPerCategory(parseInt(e.target.value))}
+                          className="w-full h-2 bg-slate-700/50 rounded-lg appearance-none cursor-pointer slider-thumb"
+                          style={{
+                            background: `linear-gradient(to right, rgb(99 102 241) 0%, rgb(99 102 241) ${((pagesPerCategory - 1) / 9) * 100}%, rgb(51 65 85 / 0.5) ${((pagesPerCategory - 1) / 9) * 100}%, rgb(51 65 85 / 0.5) 100%)`
+                          }}
+                        />
+                        <div className="flex justify-between text-xs text-white/50 mt-2 px-0.5">
+                          <span className={pagesPerCategory === 1 ? 'text-indigo-400 font-semibold' : ''}>1</span>
+                          <span className={pagesPerCategory === 5 ? 'text-indigo-400 font-semibold' : ''}>5</span>
+                          <span className={pagesPerCategory === 10 ? 'text-indigo-400 font-semibold' : ''}>10</span>
+                        </div>
                       </div>
                     </div>
                     
