@@ -1,4 +1,6 @@
 import { X, Film, Star, Calendar } from 'lucide-react';
+import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { PersonDetails } from '../lib/types';
 
 interface PersonModalProps {
@@ -18,9 +20,22 @@ export const PersonModal = ({
   onClose,
   onMovieClick,
 }: PersonModalProps) => {
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen || !person) return null;
 
-  return (
+  const modalContent = (
     <div 
       className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
       onClick={onClose}
@@ -192,4 +207,6 @@ export const PersonModal = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };

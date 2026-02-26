@@ -1,5 +1,7 @@
 import { X, Star, Calendar, Globe, Film, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns/format';
+import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Movie, MovieDetails } from '../lib/types';
 
 interface MovieModalProps {
@@ -25,11 +27,24 @@ export const MovieModal = ({
   onPersonClick,
   onMovieClick,
 }: MovieModalProps) => {
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen || !movie) return null;
 
   const movieData = movie as any;
 
-  return (
+  const modalContent = (
     <div 
       className={`fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 transition-all duration-300 ease-out ${
         isMounted ? 'opacity-100' : 'opacity-0'
@@ -444,4 +459,6 @@ export const MovieModal = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
